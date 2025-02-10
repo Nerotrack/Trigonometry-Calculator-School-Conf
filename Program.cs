@@ -2,131 +2,120 @@
 using SFML.Graphics;
 using SFML.Window;
 using SFML.System;
+using System.Collections.Generic;
 
-namespace TrigonometryCalculator
+namespace TestApp1
 {
-
     class Program
     {
-        static CircleShape circle = new CircleShape(radius: 200, 100);
-        static RectangleShape button = new RectangleShape(new Vector2f(200, 100));
-        static void Main(string[] args)
+        // Объекты, использующиеся в событиях.
+        static VideoMode videoMode = new VideoMode(1280, 720);
+        static RenderWindow window = new RenderWindow(videoMode, "TestApp");
+        static Vector2f windowCenter = new Vector2f(window.Size.X / 2, window.Size.Y / 2);
+        static CircleShape circle;
+        static Stack<CircleShape> pointStack = new Stack<CircleShape> { };
+        
+        // Изменение масштаба камеры.
+        static Vector2f MaxZoomCount { get; set; } = new Vector2f(window.Size.X + window.Size.X / 2, window.Size.Y + window.Size.X / 2);
+        static Vector2f MinZoomCount { get; set; } = new Vector2f(window.Size.X / 2, window.Size.Y / 2);
+        static Vector2f ZoomStep { get; set; } = new Vector2f(window.Size.X / 20, window.Size.Y / 20);
+        
+        // Интерфейс.
+        static View view = new View(windowCenter, new Vector2f(videoMode.Width, videoMode.Height));
+        static Text text = new Text("Текст", new Font("C:\\Windows\\Fonts\\arial.ttf"));
+        
+        static void Main(string[] args)
         {
-
-            // Инициализация объектов.
-            VideoMode videoMode = new VideoMode(width: 1280, height: 720);
-            RenderWindow window = new RenderWindow(videoMode, title: "Тригонометрический калькулятор", Styles.Close);
-            window.SetFramerateLimit(60);
-
-            Vector2f windowCenter = new Vector2f(window.Size.X / 2, window.Size.Y / 2);
-
-            RectangleShape XAxis = new RectangleShape(new Vector2f(window.Size.X, 2));
+            RectangleShape XAxis = new RectangleShape(new Vector2f(window.Size.X * 2, 2));
             XAxis.Origin = new Vector2f(XAxis.Size.X / 2, XAxis.Size.Y / 2);
             XAxis.Position = windowCenter;
-
-            RectangleShape YAxis = new RectangleShape(new Vector2f(2, window.Size.Y));
+            XAxis.FillColor = new Color(180, 180, 180);
+            RectangleShape YAxis = new RectangleShape(new Vector2f(2, window.Size.Y * 2));
             YAxis.Origin = new Vector2f(YAxis.Size.X / 2, YAxis.Size.Y / 2);
-            YAxis.Position = windowCenter;
-
-            circle.Origin = new Vector2f(-videoMode.Width / 2 + circle.Radius, -videoMode.Height / 2 + circle.Radius);
+            YAxis.Position = windowCenter;YAxis.FillColor = new Color(180, 180, 180);
+            
+            circle = new CircleShape(200, 75);
+            circle.Origin = new Vector2f(circle.Radius, circle.Radius);
+            circle.Position = windowCenter;
             circle.FillColor = Color.Transparent;
             circle.OutlineThickness = 2;
-            circle.OutlineColor = Color.White;
+            circle.OutlineColor = Color.White;            
 
-            RectangleShape line = new RectangleShape(new Vector2f(400, 1));
-            line.Origin = new Vector2f(line.Size.X / 2, line.Size.Y / 2);
-            line.Position = windowCenter;
-
-            Sprite sprite = new Sprite(new Texture("C:\\Users\\dsark\\Downloads\\52b7921e533e92e28a5df863510d1656.jpg"),
-                                        new IntRect(0, 0, (int)window.Size.X, (int)window.Size.Y));
-            sprite.Origin = new Vector2f(sprite.TextureRect.Width / 2, sprite.TextureRect.Height / 2);
-            sprite.Position = windowCenter;
-            sprite.Color = new Color(40, 40, 40);
-            //sprite.Scale += new Vector2f( window.Size.X / sprite.TextureRect.Size.X, window.Size.Y / sprite.TextureRect.Size.Y);
-            sprite.Texture.Repeated = true;
-
-            // Button.
-            button.Origin = new Vector2f(button.Size.X / 2, button.Size.Y / 2);
-            button.Position = new Vector2f(130, 650); 
-            button.FillColor = new Color(100, 100, 100);
-            button.OutlineThickness = 3;
-            button.OutlineColor = new Color(150, 150, 150);
-            
-
-            // Подписание всех нужных действий к нужным событиям.
-            window.Closed += ClosedEventHandler!;
-            window.KeyPressed += KeyPressedEventHandler!;
-            window.MouseButtonPressed += MouseButtonPressedHandler!;
-
-            while (window.IsOpen)
+            // Подписка методов к событиям.
+            window.Closed += (obj, e) => window.Close();
+            window.KeyPressed += KeyPressedHandler;
+            window.MouseWheelScrolled += MouseWheelScrolledHandler;
+            window.MouseButtonPressed += MouseButtonPressedHandler;
+            while(window.IsOpen)
             {
-                // Обработка всех произошедших событий.
                 window.DispatchEvents();
+                window.Clear(new Color(20, 20, 20));
+                // Код.
 
-                // Очищение кадра.
-                window.Clear();
-
-                // Любая логика, происходящая каждый кадр.
-
-                line.Rotation += 1;
-
-                // Генерация графических объектов.
-                window.Draw(sprite);
-                
-                window.Draw(XAxis);
+                // Генерация графических объектов.
+                window.SetView(view);
+                window.Draw(XAxis);
                 window.Draw(YAxis);
                 window.Draw(circle);
-
-                window.Draw(line);
-                window.Draw(button);
-
-                
-
-                // Отображение сгенерированных объектов.
+                foreach(var point in pointStack)
+                {
+                    window.Draw(point);
+                }
+                window.Draw(text);
+                //Отрисовка сгенерированных графических объектов.
                 window.Display();
-
             }
-
-        }
-
-        #region Методы, выполняющиеся каждый кадр.
-        //static void CircleMove()
-        //{
-        //    float speed = 10;
-        //    if (Keyboard.IsKeyPressed(Keyboard.Key.A)) circle.Position -= new Vector2f(1, 0) * speed;
-        //    else if (Keyboard.IsKeyPressed(Keyboard.Key.D)) circle.Position += new Vector2f(1, 0) * speed;
-        //    else if (Keyboard.IsKeyPressed(Keyboard.Key.W)) circle.Position += new Vector2f(0, -1) * speed;
-        //    else if (Keyboard.IsKeyPressed(Keyboard.Key.S)) circle.Position += new Vector2f(0, 1) * speed;
-        //}
-
-        #endregion
-
-        #region Обработчики системных событий.
-        static void ClosedEventHandler(object sender, EventArgs e)
+        }
+        
+        private static void MouseWheelScrolledHandler(object sender, MouseWheelScrollEventArgs e)
         {
-            if(sender is RenderWindow window)
-                window.Close();
+            if (e.Delta > 0)
+            {
+                if(view.Size.X < MaxZoomCount.X && view.Size.Y < MaxZoomCount.Y)
+                    view.Size += ZoomStep;
+            }
+            if (e.Delta < 0)
+            {
+                if (view.Size.X > MinZoomCount.X && view.Size.Y > MinZoomCount.Y)
+                    view.Size -= ZoomStep;
+            }
         }
-        static void KeyPressedEventHandler(object sender, KeyEventArgs e)
+        static void KeyPressedHandler(object sender, KeyEventArgs e)
         {
-            if(sender is RenderWindow window)
+            if (sender is RenderWindow window)
             {
                 if (e.Code == Keyboard.Key.Escape)
+                {
                     window.Close();
-
+                }
+                if(e.Code == Keyboard.Key.Z && pointStack.Count >= 1)
+                {
+                    pointStack.Pop();
+                }
             }
         }
         static void MouseButtonPressedHandler(object sender, MouseButtonEventArgs e)
         {
-            if(e.Button == Mouse.Button.Left)
+            if (Mouse.IsButtonPressed(Mouse.Button.Left))
             {
-                if (button.GetGlobalBounds().Contains(e.X, e.Y))
-                    Console.WriteLine("Нажата кнопка.");
-
+                Vector2f mousePos = window.MapPixelToCoords(new Vector2i(e.X, e.Y));
+                
+                CircleShape point = new CircleShape(3, 15);
+                point.FillColor = Color.Red;
+                point.Origin = new Vector2f(point.Radius, point.Radius);
+                
+                float angle = MathF.Atan2(mousePos.Y - circle.Origin.Y, mousePos.X - circle.Origin.X);
+                float cosAngle = circle.Origin.X + circle.Radius * MathF.Cos(angle);
+                float sinAngle = circle.Origin.Y + circle.Radius * MathF.Sin(angle);
+                
+                point.Position = new Vector2f(cosAngle, sinAngle);
+                pointStack.Push(point);
+                
+                if (circle.GetGlobalBounds().Contains(e.X, e.Y))
+                {
+                    Console.WriteLine("Произошёл клик в области окружности.");
+                }
             }
         }
-
-        #endregion
-    }
-
+    }
 }
