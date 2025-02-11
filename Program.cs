@@ -16,7 +16,7 @@ namespace Trigonometry_Calculator
         static Stack<CircleShape> pointStack = new Stack<CircleShape> { };
 
         // Изменение масштаба камеры.
-        static Vector2f MaxZoomCount { get; set; } = new Vector2f(window.Size.X + window.Size.X / 2, window.Size.Y + window.Size.X / 2);
+        static Vector2f MaxZoomCount { get; set; } = new Vector2f(window.Size.X + window.Size.X / 6, window.Size.Y + window.Size.X / 6);
         static Vector2f MinZoomCount { get; set; } = new Vector2f(window.Size.X / 2, window.Size.Y / 2);
         static Vector2f ZoomStep { get; set; } = new Vector2f(window.Size.X / 20, window.Size.Y / 20);
 
