@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SFML.Graphics;
 using SFML.Window;
 using SFML.System;
@@ -10,7 +10,7 @@ namespace Trigonometry_Calculator
     {
         // Объекты, использующиеся в событиях.
         static VideoMode videoMode = new VideoMode(1280, 720);
-        static RenderWindow window = new RenderWindow(videoMode, "TestApp");
+        static RenderWindow window = new RenderWindow(videoMode, "Тригонометрический калькулятор", Styles.Close);
         static Vector2f windowCenter = new Vector2f(window.Size.X / 2, window.Size.Y / 2);
         static CircleShape circle = new CircleShape();
         static Stack<CircleShape> pointStack = new Stack<CircleShape> { };
@@ -38,9 +38,8 @@ namespace Trigonometry_Calculator
                 circle.Origin = new Vector2f(circle.Radius, circle.Radius);
                 circle.Position = windowCenter;
                 circle.FillColor = Color.Transparent;
-                circle.OutlineThickness = 2;
+                circle.OutlineThickness = 1.5f;
                 circle.OutlineColor = Color.White;
-
 
             // Подписка методов к событиям.
             window.Closed += (obj, e) => window.Close();
@@ -56,10 +55,19 @@ namespace Trigonometry_Calculator
                 window.Clear(new Color(20, 20, 20));
 
                 // Код.
+                    //Движение View [ Временно ].
+                if (Keyboard.IsKeyPressed(Keyboard.Key.D))
+                    view.Move(new Vector2f(0.2f, 0));
+                if (Keyboard.IsKeyPressed(Keyboard.Key.A))
+                    view.Move(new Vector2f(-0.2f, 0));
+                if (Keyboard.IsKeyPressed(Keyboard.Key.W))
+                    view.Move(new Vector2f(0, -0.2f));
+                if (Keyboard.IsKeyPressed(Keyboard.Key.S))
+                    view.Move(new Vector2f(0, 0.2f));
 
                 // Генерация графических объектов.
-
                 window.SetView(view);
+
                 window.Draw(XAxis);
                 window.Draw(YAxis);
                 window.Draw(circle);
@@ -109,22 +117,23 @@ namespace Trigonometry_Calculator
             if (Mouse.IsButtonPressed(Mouse.Button.Left))
             {
                 Vector2f mousePos = window.MapPixelToCoords(new Vector2i(e.X, e.Y));
-
-                CircleShape point = new CircleShape(3, 15);
-                point.FillColor = Color.Red;
-                point.Origin = new Vector2f(point.Radius, point.Radius);
-
-                float angle = MathF.Atan2(mousePos.Y - circle.Origin.Y, mousePos.X - circle.Origin.X);
-                float cosAngle = circle.Origin.X + circle.Radius * MathF.Cos(angle);
-                float sinAngle = circle.Origin.Y + circle.Radius * MathF.Sin(angle);
-
-                point.Position = new Vector2f(cosAngle, sinAngle);
-                pointStack.Push(point);
-
-                if (circle.GetGlobalBounds().Contains(e.X, e.Y))
+                Vector2f distance = circle.Position - mousePos;
+                double modDistance = Math.Sqrt(Math.Pow(distance.X, 2) + Math.Pow(distance.Y, 2));
+                // Если курсор находится вблизи с окружностью.
+                if (modDistance <= circle.Radius + 75)
                 {
-                    Console.WriteLine("Произошёл клик в области окружности.");
+                    CircleShape point = new CircleShape(4, 20);
+                    point.FillColor = Color.Red;
+                    point.Origin = new Vector2f(point.Radius, point.Radius);
+
+                    float angle = MathF.Atan2(mousePos.Y - circle.Position.Y, mousePos.X - circle.Position.X);
+                    float cosAngle = circle.Position.X + circle.Radius * MathF.Cos(angle);
+                    float sinAngle = circle.Position.Y + circle.Radius * MathF.Sin(angle);
+
+                    point.Position = new Vector2f(cosAngle, sinAngle);
+                    pointStack.Push(point);
                 }
+
             }
         }
         private static void WindowResizedHandler(object? sender, SizeEventArgs e)
