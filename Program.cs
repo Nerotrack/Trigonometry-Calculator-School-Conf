@@ -11,9 +11,8 @@ namespace Trigonometry_Calculator
         // Объекты, использующиеся в событиях.
         static VideoMode videoMode = new VideoMode(1280, 720);
         static RenderWindow window = new RenderWindow(videoMode, "Тригонометрический калькулятор", Styles.Close);
-        static Vector2f windowCenter = new Vector2f(window.Size.X / 2, window.Size.Y / 2);
-        static CircleShape circle = new CircleShape();
-        static Stack<CircleShape> pointStack = new Stack<CircleShape> { };
+        public static CircleShape circle = new CircleShape();
+        static Stack<Point> pointStack = new Stack<Point> { };
 
         // Изменение масштаба камеры.
         static Vector2f MaxZoomCount { get; set; } = new Vector2f(window.Size.X + window.Size.X / 6, window.Size.Y + window.Size.X / 6);
@@ -21,22 +20,19 @@ namespace Trigonometry_Calculator
         static Vector2f ZoomStep { get; set; } = new Vector2f(window.Size.X / 20, window.Size.Y / 20);
 
         // Интерфейс.
-        static View view = new View(windowCenter, new Vector2f(videoMode.Width, videoMode.Height));
+        static View view = new View(new Vector2f(), new Vector2f(videoMode.Width, videoMode.Height));
 
         static void Main(string[] args)
         {
             RectangleShape XAxis = new RectangleShape(new Vector2f(window.Size.X * 2, 2));
                 XAxis.Origin = new Vector2f(XAxis.Size.X / 2, XAxis.Size.Y / 2);
-                XAxis.Position = windowCenter;
                 XAxis.FillColor = new Color(180, 180, 180);
             RectangleShape YAxis = new RectangleShape(new Vector2f(2, window.Size.Y * 2));
                 YAxis.Origin = new Vector2f(YAxis.Size.X / 2, YAxis.Size.Y / 2);
-                YAxis.Position = windowCenter;
                 YAxis.FillColor = new Color(180, 180, 180);
 
             circle = new CircleShape(200, 75);
                 circle.Origin = new Vector2f(circle.Radius, circle.Radius);
-                circle.Position = windowCenter;
                 circle.FillColor = Color.Transparent;
                 circle.OutlineThickness = 1.5f;
                 circle.OutlineColor = Color.White;
@@ -47,6 +43,7 @@ namespace Trigonometry_Calculator
             window.MouseWheelScrolled += MouseWheelScrolledHandler!;
             window.MouseButtonPressed += MouseButtonPressedHandler!;
             window.Resized += WindowResizedHandler;
+            window.MouseMoved += MouseMovedHandler;
 
             while (window.IsOpen)
             {
@@ -75,7 +72,6 @@ namespace Trigonometry_Calculator
                 {
                     window.Draw(point);
                 }
-
                 //Отрисовка сгенерированных графических объектов.
                 window.Display();
             }
@@ -118,23 +114,31 @@ namespace Trigonometry_Calculator
             {
                 Vector2f mousePos = window.MapPixelToCoords(new Vector2i(e.X, e.Y));
                 Vector2f distance = circle.Position - mousePos;
-                double modDistance = Math.Sqrt(Math.Pow(distance.X, 2) + Math.Pow(distance.Y, 2));
+                float modDistance = MathF.Sqrt(MathF.Pow(distance.X, 2) + MathF.Pow(distance.Y, 2));
                 // Если курсор находится вблизи с окружностью.
                 if (modDistance <= circle.Radius + 75)
                 {
-                    CircleShape point = new CircleShape(4, 20);
-                    point.FillColor = Color.Red;
-                    point.Origin = new Vector2f(point.Radius, point.Radius);
-
                     float angle = MathF.Atan2(mousePos.Y - circle.Position.Y, mousePos.X - circle.Position.X);
-                    float cosAngle = circle.Position.X + circle.Radius * MathF.Cos(angle);
-                    float sinAngle = circle.Position.Y + circle.Radius * MathF.Sin(angle);
 
-                    point.Position = new Vector2f(cosAngle, sinAngle);
+                    Point point = new Point(angle, Color.Red);
+                    
                     pointStack.Push(point);
                 }
-
             }
+
+        }
+        private static void MouseMovedHandler(object? sender, MouseMoveEventArgs e)
+        {
+            // Если на какую-то из созданных точек наведена мышь,
+            Point? focusPoint = pointStack.ToList().FirstOrDefault(point => point.GetGlobalBounds().Contains(window.MapPixelToCoords(Mouse.GetPosition(window))));
+            if(focusPoint is not null)
+                Console.WriteLine($"ТОЧКА: {focusPoint?.GetType().Name}. \n" +
+                                    $"Rad = {-focusPoint?.AngleRad}\n" +
+                                    $"Deg = {focusPoint?.AngleDeg}\n" +
+                                    $"Sin = {focusPoint?.Sin}\n" +
+                                    $"Cos = {focusPoint?.Cos}\n" +
+                                    $"Tg = {focusPoint?.Tg}\n" +
+                                    $"Ctg = {focusPoint?.Ctg}\n");
         }
         private static void WindowResizedHandler(object? sender, SizeEventArgs e)
         {
