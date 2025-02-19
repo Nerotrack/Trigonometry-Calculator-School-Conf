@@ -8,10 +8,22 @@ using System.Linq;
 
 namespace Trigonometry_Calculator
 {
+    enum TrigonometryFunctions
+    {
+        Sin = 1,
+        Cos,
+        Tg,
+        Ctg
+    }
+
     class Program
     {
         // Переменные для технических настроек отображения объектов сцены.
         static bool inRadian = true;
+
+        static bool standartCalcMode = true;
+        static TrigonometryFunctions? selectedFunction;
+
         // Объекты, использующиеся в событиях.
         static VideoMode videoMode = new VideoMode(1280, 720);
         public static RenderWindow window = new RenderWindow(videoMode, "Тригонометрический калькулятор", Styles.Close);
@@ -27,19 +39,20 @@ namespace Trigonometry_Calculator
         // Интерфейс.
         static InputField inputField = new InputField(view.Center + new Vector2f(0, window.Size.Y / 2 - 50), new Vector2f(400, 25), new Font("C:\\Windows\\Fonts\\arialbd.ttf"));
         static RectangleShape inputFieldBG = new RectangleShape(new Vector2f(inputField.Width + 15, inputField.Height + 15));
-        static Text inputFieldBGText = new Text("Угол:", new Font("C:\\Windows\\Fonts\\arialbd.ttf"), 20);
+        static Text inputFieldBGText = new Text("Угол:", new Font("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Шрифты\\ARIALBD.TTF"), 20);
         static RectangleShape targetCalculationBG = new RectangleShape(new Vector2f(200, 300));
         static PointPropsPanel pointPropsPanel = new PointPropsPanel();
-        static Button radDegSwitcher = new Button("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Switcher_Rad.png");
+        static Button radDegSwitcher = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Switcher_Rad.png");
         static RectangleShape displayAtPointBG = new RectangleShape(new Vector2f(300, 40));
         static Text displayAtPointText = new Text("Отобразить у точки:", new Font("C:\\Windows\\Fonts\\arialbd.ttf"), 20);
-        static Button displaySinButton = new Button("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Sin_Texture.png");
-        static Button displayCosButton = new Button("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Cos_Texture.png");
-        static Button displayTgButton = new Button("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Tg_Texture.png");
-        static Button displayCtgButton = new Button("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Ctg_Texture.png");
+        static Button displaySinButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Sin_Texture.png");
+        static Button displayCosButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Cos_Texture.png");
+        static Button displayTgButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Tg_Texture.png");
+        static Button displayCtgButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Ctg_Texture.png");
 
         static void Main(string[] args)
         {
+            #region Инициализация объектов.
             circle = new CircleShape(200, 75);
             circle.Origin = new Vector2f(circle.Radius, circle.Radius);
             circle.FillColor = Color.Transparent;
@@ -138,16 +151,15 @@ namespace Trigonometry_Calculator
             displayCtgButton.sprite.TextureRect = new IntRect(new Vector2i(), new Vector2i((int)displayCtgButton.sprite.GetGlobalBounds().Width, (int)displayCtgButton.sprite.GetGlobalBounds().Height / 2 + 2));
             displayCtgButton.Position = new Vector2f(window.Size.X / 2 - 55, 140);
 
+            #endregion
+
             // Подписка методов к событиям.
             window.Closed += (obj, e) => window.Close();
             window.KeyPressed += KeyPressedHandler!;
-            window.MouseWheelScrolled += MouseWheelScrolledHandler!;
             window.MouseButtonPressed += MouseButtonPressedHandler!;
             window.Resized += WindowResizedHandler;
-            window.MouseMoved += MouseMovedHandler;
             window.TextEntered += TextEnteredHandler;
 
-            float vx = 0, vy = 0;
 
             while (window.IsOpen)
             {
@@ -206,8 +218,8 @@ namespace Trigonometry_Calculator
                 }
 
                 // Отрисовка интерфейса.
-                window.Draw(targetCalculationBG);
-                window.Draw(targetCalcText);
+                //window.Draw(targetCalculationBG);
+                //window.Draw(targetCalcText);
                 window.Draw(inputFieldBG);
                 window.Draw(inputFieldBGText);
                 inputField.Draw(window);
@@ -226,25 +238,6 @@ namespace Trigonometry_Calculator
         }
 
         #region Обработчики системных событий.
-        static void MouseWheelScrolledHandler(object sender, MouseWheelScrollEventArgs e)
-        {
-            //Vector2f viewSize0 = view.Size;
-            //if (e.Delta < 0)
-            //{
-            //    if (view.Size.X < MaxZoomCount.X && view.Size.Y < MaxZoomCount.Y)
-            //    {
-            //        view.Size += ZoomStep;
-                    
-            //    }
-            //}
-            //if (e.Delta > 0)
-            //{
-            //    if (view.Size.X > MinZoomCount.X && view.Size.Y > MinZoomCount.Y)
-            //    {
-            //        view.Size -= ZoomStep;
-            //    }                    
-            //}
-        }
         static void KeyPressedHandler(object sender, KeyEventArgs e)
         {
             if (sender is RenderWindow window)
@@ -280,15 +273,89 @@ namespace Trigonometry_Calculator
                     inputField.Text.DisplayedString, "([a-zA-Z0-9])([a-zA-Z])", "$1 * $2" );
 
                     float value = Convert.ToSingle(new DataTable().Compute(inputField.Text.DisplayedString, ""));
-                    if (inRadian)
-                        circlePoints.Push(new Point(-value));
-                    else if (!inRadian) // Если в градусах,
-                        circlePoints.Push(new Point(MathF.PI / 180 * -value));
+                    if(standartCalcMode)
+                    {
+                        if (inRadian)
+                            circlePoints.Push(new Point(-value));
+                        else if (!inRadian) // Если в градусах,
+                            circlePoints.Push(new Point(MathF.PI / 180 * -value));
+                    }
+                    if(!standartCalcMode)
+                    {
+                        switch (selectedFunction)
+                        {
+                            case TrigonometryFunctions.Sin:
+                                if(value < 1 && value > - 1)
+                                {
+                                    circlePoints.Push(new Point(MathF.Pow(-1, 0) * MathF.Asin(-value) - MathF.PI * 0));
+                                    circlePoints.Push(new Point(MathF.Pow(-1, 1) * MathF.Asin(-value) - MathF.PI * 1));
+                                }
+                                if(value == 1) circlePoints.Push(new Point(-MathF.PI / 2));
+                                if (value == -1) circlePoints.Push(new Point(MathF.PI / 2));
+                                break;
+                            case TrigonometryFunctions.Cos:
+                                if(value < 1 && value > - 1)
+                                {
+                                    circlePoints.Push(new Point(-MathF.Acos(value)));
+                                    circlePoints.Push(new Point(MathF.Acos(value)));
+                                }
+                                if(value == 1) circlePoints.Push(new Point(0));
+                                if (value == -1) circlePoints.Push(new Point(-MathF.PI));
+                                break;
+                            case TrigonometryFunctions.Tg:
+                                circlePoints.Push(new Point(-MathF.Atan(value)));
+                                circlePoints.Push(new Point(-MathF.Atan(value) - MathF.PI));
+                                break;
+                            case TrigonometryFunctions.Ctg:
+                                circlePoints.Push(new Point(-MathF.PI / 2 + MathF.Atan(value)));
+                                circlePoints.Push(new Point(-MathF.PI / 2 + MathF.Atan(value) - MathF.PI));
+                                break;
+                        }
+                    }
                     inputField.Clear();
                 }
                 catch(Exception ex)
                 { Console.WriteLine($"Ошибка. {ex}"); }   
             }
+            if (e.Code == Keyboard.Key.X)
+            {
+                if (standartCalcMode)
+                {
+                    standartCalcMode = false;
+                    Console.WriteLine("Включен второй режим.");
+                }
+                else
+                {
+                    standartCalcMode = true;
+                    Console.WriteLine("Включен стандартный (первый) режим.");
+                }
+            }
+            
+            if (e.Code == Keyboard.Key.R && standartCalcMode == false)
+            {
+                selectedFunction = TrigonometryFunctions.Sin;
+                Console.WriteLine("Выбран " + selectedFunction);
+            }
+                    
+            if (e.Code == Keyboard.Key.T && standartCalcMode == false)
+            {
+                selectedFunction = TrigonometryFunctions.Cos;
+                Console.WriteLine("Выбран " + selectedFunction);
+            }
+                
+            if (e.Code == Keyboard.Key.Y && standartCalcMode == false)
+            {
+                selectedFunction = TrigonometryFunctions.Tg;
+                Console.WriteLine("Выбран " + selectedFunction);
+            }
+            
+            if (e.Code == Keyboard.Key.U && standartCalcMode == false)
+            {
+                selectedFunction = TrigonometryFunctions.Ctg;
+                Console.WriteLine("Выбран " + selectedFunction);
+            }
+                    
+                
         }
         static void MouseButtonPressedHandler(object sender, MouseButtonEventArgs e)
         {
@@ -320,13 +387,13 @@ namespace Trigonometry_Calculator
                 if (inRadian == true)
                 {
                     inRadian = false;
-                    radDegSwitcher.sprite.Texture = new Texture("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Switcher_Deg.png");
+                    radDegSwitcher.sprite.Texture = new Texture("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Switcher_Deg.png");
                     Console.WriteLine("В радианах: false");
                 }
                 else
                 {
                     inRadian = true;
-                    radDegSwitcher.sprite.Texture = new Texture("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Switcher_Rad.png");
+                    radDegSwitcher.sprite.Texture = new Texture("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Switcher_Rad.png");
                     Console.WriteLine("В радианах: true");
                 }   
             }
@@ -371,8 +438,6 @@ namespace Trigonometry_Calculator
             }
 
         }
-        static void MouseMovedHandler(object? sender, MouseMoveEventArgs e)
-        { }
         static void WindowResizedHandler(object? sender, SizeEventArgs e)
         {
             view.Size = new Vector2f(window.Size.X, window.Size.Y);
