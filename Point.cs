@@ -6,6 +6,8 @@ namespace Trigonometry_Calculator
 {
     internal class Point : CircleShape, Drawable
     {
+        public bool IsSelected { get; set; } = false;
+
         float angleRad;
         public float AngleRad
         {
@@ -13,7 +15,7 @@ namespace Trigonometry_Calculator
             set
             {
                 angleRad = MathF.Round(value, 3);
-                AngleDeg = - 180 / MathF.PI * angleRad;
+                AngleDeg = MathF.Round(- 180 / MathF.PI * angleRad, 3);
                 Sin = -MathF.Round(MathF.Sin(angleRad), 3);
                 Cos = MathF.Round(MathF.Cos(angleRad), 3);
                 Tg = MathF.Round(Sin / Cos, 3);
@@ -23,6 +25,7 @@ namespace Trigonometry_Calculator
                 float sinAngle = Program.circle.Position.Y + Program.circle.Radius * MathF.Sin(value);
 
                 Position = new Vector2f(cosAngle, sinAngle);
+                FillColor = Color.Red;
             }
         }
         public float AngleDeg { get; private set; }
