@@ -86,7 +86,7 @@ namespace Trigonometry_Calculator
                 if (_text.DisplayedString[^1] == '3' && _text.DisplayedString[^2] == '√')
                     _text.DisplayedString = _text.DisplayedString.Substring(0, _text.DisplayedString.Length - 2);
             }
-            if (_text.DisplayedString.Length > 0)
+            if (_text.DisplayedString.Length > 0) //  (&& _text.DisplayedString[^1] != '=') Второе условие создано для второго режима, который генерирует символ '=' автоматически.
             {
                 _text.DisplayedString = _text.DisplayedString.Substring(0, _text.DisplayedString.Length - 1);
             }
@@ -103,9 +103,10 @@ namespace Trigonometry_Calculator
                 input.Contains('/') ||
                 input.Contains('(') ||
                 input.Contains(')') ||
-                input.Contains('π') || 
+                input.Contains('π') ||
                 input.Contains("√2") ||
                 input.Contains("√3");
+                //input.Contains('=');
 
         }
 
