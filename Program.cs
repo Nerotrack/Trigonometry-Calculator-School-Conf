@@ -39,16 +39,23 @@ namespace Trigonometry_Calculator
         // Интерфейс.
         static InputField inputField = new InputField(view.Center + new Vector2f(0, window.Size.Y / 2 - 50), new Vector2f(400, 25), new Font("C:\\Windows\\Fonts\\arialbd.ttf"));
         static RectangleShape inputFieldBG = new RectangleShape(new Vector2f(inputField.Width + 15, inputField.Height + 15));
-        static Text inputFieldBGText = new Text("Угол:", new Font("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Шрифты\\ARIALBD.TTF"), 20);
-        static RectangleShape targetCalculationBG = new RectangleShape(new Vector2f(200, 300));
+        static Text inputFieldBGText = new Text("Угол =", new Font("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Шрифты\\ARIALBD.TTF"), 20);
+        static RectangleShape targetCalculationBG = new RectangleShape(new Vector2f(200, 28));
+        static RectangleShape tcAngleBG = new RectangleShape(new Vector2f(110, 25));
+        static RectangleShape tcFunctionBG = new RectangleShape(new Vector2f(110, 25));
         static PointPropsPanel pointPropsPanel = new PointPropsPanel();
         static Button radDegSwitcher = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Switcher_Rad.png");
-        static RectangleShape displayAtPointBG = new RectangleShape(new Vector2f(300, 40));
+        static RectangleShape displayAtPointBG = new RectangleShape(new Vector2f(250, 35));
         static Text displayAtPointText = new Text("Отобразить у точки:", new Font("C:\\Windows\\Fonts\\arialbd.ttf"), 20);
         static Button displaySinButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Sin_Texture.png");
         static Button displayCosButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Cos_Texture.png");
         static Button displayTgButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Tg_Texture.png");
         static Button displayCtgButton = new Button("C:\\Users\\dsark\\source\\repos\\Trigonometry Calculator\\Trigonometry Calculator\\Button_Textures\\Ctg_Texture.png");
+            // Кнопки тригонометрических функций для второго режима вычисления.
+        static Button sinButton = new Button(displaySinButton.sprite.Texture);
+        static Button cosButton = new Button(displayCosButton.sprite.Texture);
+        static Button tgButton = new Button(displayTgButton.sprite.Texture);
+        static Button ctgButton = new Button(displayCtgButton.sprite.Texture);
 
         static void Main(string[] args)
         {
@@ -118,10 +125,10 @@ namespace Trigonometry_Calculator
             inputFieldBG.OutlineColor = new Color(150, 150, 150);
             inputFieldBG.OutlineThickness = 2;
 
-            inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 70, 0);
+            inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 130, 0);
 
             targetCalculationBG.Origin = new Vector2f(targetCalculationBG.Size.X / 2, targetCalculationBG.Size.Y / 2);
-            targetCalculationBG.Position = new Vector2f(-window.Size.X / 2 + targetCalculationBG.Size.X / 2 + 15, window.Size.Y / 2 - targetCalculationBG.Size.Y / 2 - 15);
+            targetCalculationBG.Position = new Vector2f(-window.Size.X / 2 + targetCalculationBG.Size.X / 2 + 15, window.Size.Y / 2 - targetCalculationBG.Size.Y / 2 - 15 -100);
             targetCalculationBG.FillColor = new Color(80, 80, 80);
             targetCalculationBG.OutlineColor = new Color(150, 150, 150);
             targetCalculationBG.OutlineThickness = 2;
@@ -131,25 +138,57 @@ namespace Trigonometry_Calculator
             Text targetCalcText = new Text("Цель вычисления:", new Font("C:\\Windows\\Fonts\\arialbd.ttf"), 20);
             targetCalcText.Position = targetCalculationBG.Position + new Vector2f(-targetCalculationBG.Size.X / 2 + 5, -targetCalculationBG.Size.Y / 2);
 
+            tcAngleBG.Origin = new Vector2f(tcAngleBG.Size.X / 2, tcAngleBG.Size.Y / 2);
+            tcAngleBG.FillColor = new Color(110, 110, 110);
+            tcAngleBG.OutlineColor = new Color(150, 150, 150);
+            tcAngleBG.OutlineThickness = 2;
+            tcAngleBG.Position = targetCalculationBG.Position + new Vector2f(-40, tcFunctionBG.Size.Y / 2 + 30);
+
+            Text tcAngleBGText = new Text("Угол", new Font("C:\\Windows\\Fonts\\arialbd.ttf"), 20);
+            tcAngleBGText.Origin = new Vector2f(tcAngleBGText.GetGlobalBounds().Width / 2, tcAngleBGText.GetGlobalBounds().Height / 2 + 5);
+            tcAngleBGText.Position = tcAngleBG.Position;
+
+            tcFunctionBG.Origin = new Vector2f(tcAngleBG.Size.X / 2, tcAngleBG.Size.Y / 2);
+            tcFunctionBG.FillColor = new Color(110, 110, 110);
+            tcFunctionBG.OutlineColor = new Color(150, 150, 150);
+            tcFunctionBG.OutlineThickness = 2;
+            tcFunctionBG.Position = targetCalculationBG.Position + new Vector2f(-40, 2 * tcFunctionBG.Size.Y / 2 + 60);
+
+            Text tcFunctionBGText = new Text("Функция", new Font("C:\\Windows\\Fonts\\arialbd.ttf"), 20);
+            tcFunctionBGText.Origin = new Vector2f(tcFunctionBGText.GetGlobalBounds().Width / 2 + 2, tcFunctionBGText.GetGlobalBounds().Height / 2 + 4);
+            tcFunctionBGText.Position = tcFunctionBG.Position;
+
             displayAtPointBG.Origin = new Vector2f(displayAtPointBG.Size.X / 2, displayAtPointBG.Size.Y / 2);
-            displayAtPointBG.Position = new Vector2f(window.Size.X / 2 - displayAtPointBG.Size.X / 2 - 15, 75);
+            displayAtPointBG.Position = pointPropsPanel.Rectangle.Position + new Vector2f(0, -170);
             displayAtPointBG.FillColor = new Color(80, 80, 80);
             displayAtPointBG.OutlineColor = new Color(150, 150, 150);
             displayAtPointBG.OutlineThickness = 2;
 
-            displayAtPointText.Position = displayAtPointBG.Position + new Vector2f(-displayAtPointBG.Size.X / 4 - 30, -13);
+            displayAtPointText.Position = displayAtPointBG.Position + new Vector2f(-displayAtPointBG.GetGlobalBounds().Width / 2 + 25, -displayAtPointBG.GetGlobalBounds().Height / 2 + 7);
 
             displaySinButton.sprite.TextureRect = new IntRect(new Vector2i(), new Vector2i((int)displaySinButton.sprite.GetGlobalBounds().Width, (int)displaySinButton.sprite.GetGlobalBounds().Height / 2 + 2));
-            displaySinButton.Position = new Vector2f(window.Size.X / 2 - 250, 140);
-
+            displaySinButton.Position = pointPropsPanel.Rectangle.Position + new Vector2f(-pointPropsPanel.Rectangle.Size.X / 2 + displaySinButton.sprite.GetGlobalBounds().Size.X / 2 -2, - pointPropsPanel.Rectangle.Size.Y / 2 - 3 - 15);            
+            float delta = (pointPropsPanel.Rectangle.Size.X / 4 - displaySinButton.sprite.GetGlobalBounds().Width) * 1.5f;
             displayCosButton.sprite.TextureRect = new IntRect(new Vector2i(), new Vector2i((int)displayCosButton.sprite.GetGlobalBounds().Width, (int)displayCosButton.sprite.GetGlobalBounds().Height / 2 + 2));
-            displayCosButton.Position = new Vector2f(window.Size.X / 2 - 185, 140);
+            displayCosButton.Position = displaySinButton.Position + new Vector2f(displayCosButton.sprite.GetGlobalBounds().Width + delta, 0);
 
             displayTgButton.sprite.TextureRect = new IntRect(new Vector2i(), new Vector2i((int)displaySinButton.sprite.GetGlobalBounds().Width, (int)displayTgButton.sprite.GetGlobalBounds().Height / 2 + 2));
-            displayTgButton.Position = new Vector2f(window.Size.X / 2 - 120, 140);
+            displayTgButton.Position = displayCosButton.Position + new Vector2f(displayTgButton.sprite.GetGlobalBounds().Width + delta, 0);
 
             displayCtgButton.sprite.TextureRect = new IntRect(new Vector2i(), new Vector2i((int)displayCtgButton.sprite.GetGlobalBounds().Width, (int)displayCtgButton.sprite.GetGlobalBounds().Height / 2 + 2));
-            displayCtgButton.Position = new Vector2f(window.Size.X / 2 - 55, 140);
+            displayCtgButton.Position = displayTgButton.Position + new Vector2f(displayCtgButton.sprite.GetGlobalBounds().Width + delta, 0);
+
+            sinButton.TextureRect = displaySinButton.sprite.TextureRect;
+            sinButton.Position = inputField.Position + new Vector2f(-232, -20);
+
+            cosButton.TextureRect = displayCosButton.sprite.TextureRect;
+            cosButton.Position = sinButton.Position + new Vector2f(cosButton.sprite.GetGlobalBounds().Width + 5, 0);
+
+            tgButton.TextureRect = displayTgButton.sprite.TextureRect;
+            tgButton.Position = cosButton.Position + new Vector2f(tgButton.sprite.GetGlobalBounds().Width + 5, 0);
+
+            ctgButton.TextureRect = displayCtgButton.sprite.TextureRect;
+            ctgButton.Position = tgButton.Position + new Vector2f(ctgButton.sprite.GetGlobalBounds().Width + 5, 0);
 
             #endregion
 
@@ -172,8 +211,8 @@ namespace Trigonometry_Calculator
                 // Движение камеры.
 
                 // Движение графического интерфейса.
-                inputField.Position = view.Center + new Vector2f(0, window.Size.Y - 400);
-                inputFieldBG.Position = inputField.Position + new Vector2f();
+                inputField.Position = view.Center + new Vector2f(-50, window.Size.Y - 400);
+                inputFieldBG.Position = inputField.Position;
 
                 // Генерация графических объектов.
                 window.SetView(view);
@@ -218,12 +257,27 @@ namespace Trigonometry_Calculator
                 }
 
                 // Отрисовка интерфейса.
-                //window.Draw(targetCalculationBG);
-                //window.Draw(targetCalcText);
+                if(standartCalcMode == false)
+                {
+                    window.Draw(sinButton);
+                    window.Draw(cosButton);
+                    window.Draw(tgButton);
+                    window.Draw(ctgButton);
+                }
+
                 window.Draw(inputFieldBG);
                 window.Draw(inputFieldBGText);
                 inputField.Draw(window);
-                window.Draw(radDegSwitcher);
+
+                window.Draw(targetCalculationBG);
+                window.Draw(targetCalcText);
+                window.Draw(tcAngleBG);
+                window.Draw(tcAngleBGText);
+                window.Draw(tcFunctionBG);
+                window.Draw(tcFunctionBGText);
+
+                if (standartCalcMode == true)
+                    window.Draw(radDegSwitcher);
                 window.Draw(pointPropsPanel);
 
                 window.Draw(displayAtPointBG);
@@ -317,42 +371,30 @@ namespace Trigonometry_Calculator
                 catch(Exception ex)
                 { Console.WriteLine($"Ошибка. {ex}"); }   
             }
+            // Изменение режимов вычисление с помощью клавиши на клавиатуре.
             if (e.Code == Keyboard.Key.X)
             {
                 if (standartCalcMode)
                 {
                     standartCalcMode = false;
+                    // Отключение интерфейса первого режима.
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 75, 0) + new Vector2f(-48, -10);
+                    inputFieldBGText.DisplayedString = $"Функция =";
+
+                    // Окрашивание текстур всех кнопок в белый (стандартный) цвет.
+                    cosButton.sprite.Color = Color.White; tgButton.sprite.Color = Color.White; ctgButton.sprite.Color = Color.White;
+                    sinButton.sprite.Color = Color.White;
+
                     Console.WriteLine("Включен второй режим.");
                 }
                 else
                 {
                     standartCalcMode = true;
+                    // Включение интерфейса первого режима.
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 80, 0) + new Vector2f(0, -10);
+                    inputFieldBGText.DisplayedString = "Угол =";
                     Console.WriteLine("Включен стандартный (первый) режим.");
                 }
-            }
-            
-            if (e.Code == Keyboard.Key.R && standartCalcMode == false)
-            {
-                selectedFunction = TrigonometryFunctions.Sin;
-                Console.WriteLine("Выбран " + selectedFunction);
-            }
-                    
-            if (e.Code == Keyboard.Key.T && standartCalcMode == false)
-            {
-                selectedFunction = TrigonometryFunctions.Cos;
-                Console.WriteLine("Выбран " + selectedFunction);
-            }
-                
-            if (e.Code == Keyboard.Key.Y && standartCalcMode == false)
-            {
-                selectedFunction = TrigonometryFunctions.Tg;
-                Console.WriteLine("Выбран " + selectedFunction);
-            }
-            
-            if (e.Code == Keyboard.Key.U && standartCalcMode == false)
-            {
-                selectedFunction = TrigonometryFunctions.Ctg;
-                Console.WriteLine("Выбран " + selectedFunction);
             }
                     
                 
@@ -434,6 +476,79 @@ namespace Trigonometry_Calculator
                         Switch(p, SwitchCtg, true);
                     else if (ctgLineOn == true)
                         Switch(p, SwitchCtg, false);
+                }
+                // Разделительная черта. Сверху - условия для кнопок тригонометрических функций справа, снизу - для кнопок функций второго режима.
+                if (sinButton.sprite.GetGlobalBounds().Contains(mousePos) && standartCalcMode == false)
+                {
+                    selectedFunction = TrigonometryFunctions.Sin;
+                    Console.WriteLine("Выбран " + selectedFunction);
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 75, 0) + new Vector2f(8, -10);
+                    inputFieldBGText.DisplayedString = $"{selectedFunction} =";
+
+                    // Окрашивание всех кнопок в белый (стандартный) цвет, а текущую - темнее.
+                    cosButton.sprite.Color = Color.White; tgButton.sprite.Color = Color.White; ctgButton.sprite.Color = Color.White;
+                    sinButton.sprite.Color = new Color(200, 200, 200);
+                }
+
+                if (cosButton.sprite.GetGlobalBounds().Contains(mousePos) && standartCalcMode == false)
+                {
+                    selectedFunction = TrigonometryFunctions.Cos;
+                    Console.WriteLine("Выбран " + selectedFunction);
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 75, 0) + new Vector2f(1, -10);
+                    inputFieldBGText.DisplayedString = $"{selectedFunction} =";
+
+                    // Окрашивание всех кнопок в белый (стандартный) цвет, а текущую - темнее.
+                    sinButton.sprite.Color = Color.White; tgButton.sprite.Color = Color.White; ctgButton.sprite.Color = Color.White;
+                    cosButton.sprite.Color = new Color(200, 200, 200);
+                }
+
+                if (tgButton.sprite.GetGlobalBounds().Contains(mousePos) && standartCalcMode == false)
+                {
+                    selectedFunction = TrigonometryFunctions.Tg;
+                    Console.WriteLine("Выбран " + selectedFunction);
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 75, 0) + new Vector2f(15, -10);
+                    inputFieldBGText.DisplayedString = $"{selectedFunction} =";
+
+                    // Окрашивание всех кнопок в белый (стандартный) цвет, а текущую - темнее.
+                    cosButton.sprite.Color = Color.White; sinButton.sprite.Color = Color.White; ctgButton.sprite.Color = Color.White;
+                    tgButton.sprite.Color = new Color(200, 200, 200);
+                }
+
+                if (ctgButton.sprite.GetGlobalBounds().Contains(mousePos) && standartCalcMode == false)
+                {
+                    selectedFunction = TrigonometryFunctions.Ctg;
+                    Console.WriteLine("Выбран " + selectedFunction);
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 75, 0) + new Vector2f(6, -10);
+                    inputFieldBGText.DisplayedString = $"{selectedFunction} =";
+
+                    // Окрашивание всех кнопок в белый (стандартный) цвет, а текущую - темнее.
+                    cosButton.sprite.Color = Color.White; sinButton.sprite.Color = Color.White; tgButton.sprite.Color = Color.White;
+                    ctgButton.sprite.Color = new Color(200, 200, 200);
+                }
+            }
+            // Изменение режимов вычисления.
+            if (e.Button == Mouse.Button.Left)
+            {
+                if (tcAngleBG.GetGlobalBounds().Contains(mousePos))
+                {
+                    standartCalcMode = true;
+                    // Включение интерфейса первого режима.
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 80, 0) + new Vector2f(0, -10);
+                    inputFieldBGText.DisplayedString = "Угол =";
+                    Console.WriteLine("Включен стандартный (первый) режим.");
+                }
+                if (tcFunctionBG.GetGlobalBounds().Contains(mousePos))
+                {
+                    standartCalcMode = false;
+                    // Отключение интерфейса первого режима.
+                    inputFieldBGText.Position = inputField.Position + new Vector2f(-inputField.Width / 2 - 75, 0) + new Vector2f(-48, -10);
+                    inputFieldBGText.DisplayedString = $"Функция =";
+
+                    // Окрашивание текстур всех кнопок в белый (стандартный) цвет.
+                    cosButton.sprite.Color = Color.White; tgButton.sprite.Color = Color.White; ctgButton.sprite.Color = Color.White;
+                    sinButton.sprite.Color = Color.White;
+
+                    Console.WriteLine("Включен второй режим.");
                 }
             }
 
