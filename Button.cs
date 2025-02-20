@@ -12,7 +12,7 @@ namespace Trigonometry_Calculator
     // Кнопка будет содержать спрайт, (события) и поведение, определяемое для всех кнопок. Все кнопки будут статичными относительно окна.
     class Button : Transformable, Drawable
     {
-        public Sprite sprite = new Sprite(new Texture("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Кнопки\\Default_Texture.png"));
+        public Sprite sprite = new Sprite(new Texture("C:\\Users\\dsark\\OneDrive\\Рабочий стол\\Проект\\Визуальный тригонометрический калькулятор\\Button_Textures\\Default_Texture.png"));
         public new Vector2f Position
         {
             get => sprite.Position;
@@ -32,6 +32,10 @@ namespace Trigonometry_Calculator
         public Button(Sprite sprite) : this()
         {
             this.sprite = sprite;
+        }
+        public Button(Texture texture) : this()
+        {
+            sprite.Texture = texture;
         }
         public Button(string textureFile) : this()
         {
